@@ -33,7 +33,6 @@
   "author": "Feroz Faiz <feroz@hotmail.ca>",
   "license": "MIT",
   "devDependencies": {
-    "@repo/typescript-config": "*",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

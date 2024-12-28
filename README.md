@@ -195,7 +195,7 @@ Creates a token utility with the specified options.
 
 #### `generate(data?: unknown): Promise<string>`
 
-Generate a simple token without data and without timing.
+Generate a simple token with or without data and without timing.
 
 - **Parameters:**
   - `data` (`unknown`, *optional*): Data to include in the token. Defaults to an empty string if the data is an edge case.

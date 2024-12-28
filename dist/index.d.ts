@@ -87,9 +87,7 @@ export declare function generateToken(key: CryptoKey, data: unknown, showData: b
  * @returns A Promise that resolves to true if the token is valid, false otherwise.
  */
 export declare function verifyToken(key: CryptoKey, submitted: string, data: unknown, // The 'expected' data you want to verify against
-showData: boolean, // Matches generateToken’s 'showData'
-timed: boolean, // Matches generateToken’s 'timed'
-separator: string, serializer: (data: unknown) => Uint8Array, maxAgeMs?: number): Promise<boolean>;
+showData: boolean, timed: boolean, separator: string, serializer: (data: unknown) => Uint8Array, maxAgeMs?: number): Promise<boolean>;
 /**
  * Determines if the provided data is considered an edge case.
  *

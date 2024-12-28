@@ -31,22 +31,18 @@ export function encodeBase64(data) {
  */
 export function decodeBase64(base64) {
     try {
-        // Decode the Base64 string to a binary string
         const binaryString = atob(base64);
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
-        // Convert each character to its byte value
         for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
         return bytes;
     }
     catch (error) {
-        // Handle errors (e.g., invalid Base64 string)
         throw new Error('Invalid Base64 string provided for decoding.');
     }
 }
-// Define and export the default serializer function
 export const defaultDataSerializer = (data) => {
     if (typeof data === 'string') {
         return new TextEncoder().encode(data);
@@ -58,7 +54,6 @@ export const defaultDataSerializer = (data) => {
         return data;
     }
     else {
-        // Fallback: Convert to string
         return new TextEncoder().encode(String(data));
     }
 };
@@ -182,19 +177,16 @@ export async function generateToken(key, data, showData, timed, tokenByteLength,
     const dataBytes = data !== undefined && data !== null ? serializer(data) : new Uint8Array();
     // Append serialized data if showData is true and data exists
     appendPartIf(parts, showData && dataBytes.length > 0, encodeBase64(dataBytes));
-    // appendPartIf(parts, showData, encodeBase64(dataBytes));
     // Create timestamp bytes if timed
     const timestampBytes = createTimestampBytes(timed, serializer);
     // Combine random bytes, data bytes, and timestamp bytes
     const combined = combineUint8Arrays(randomBytes, dataBytes, timestampBytes);
     // Append timestamp to parts if timed
     appendPartIf(parts, timed, encodeBase64(timestampBytes));
-    // Sign the combined data
     const signature = await signData(key, combined);
     // Append random bytes and signature to parts
     parts.push(encodeBase64(randomBytes));
     parts.push(encodeBase64(signature));
-    // Join all parts using the specified separator
     return parts.join(separator);
 }
 /**
@@ -324,9 +316,7 @@ async function handleAndCompareData(data, dataBase64, serializer) {
  * @returns A Promise that resolves to true if the token is valid, false otherwise.
  */
 export async function verifyToken(key, submitted, data, // The 'expected' data you want to verify against
-showData, // Matches generateToken’s 'showData'
-timed, // Matches generateToken’s 'timed'
-separator, serializer, maxAgeMs // Optional expiration check in milliseconds
+showData, timed, separator, serializer, maxAgeMs // Optional expiration check in milliseconds
 ) {
     // Split and trim the submitted token string into parts.
     const parts = splitAndTrimToken(submitted, separator);
@@ -335,13 +325,12 @@ separator, serializer, maxAgeMs // Optional expiration check in milliseconds
     if (!extractedParts)
         return false;
     const { dataBase64, timeBase64, randomBase64, signatureBase64 } = extractedParts;
-    // Decode the random bytes.
     let randomBytes;
     try {
         randomBytes = decodeBase64(randomBase64);
     }
     catch {
-        return false; // Invalid Base64 encoding for random bytes
+        return false;
     }
     // Handle data bytes.
     const dataBytes = showData && dataBase64 ? await handleAndCompareData(data, dataBase64, serializer) : serializer(data);
@@ -369,13 +358,12 @@ separator, serializer, maxAgeMs // Optional expiration check in milliseconds
     catch {
         return false; // Invalid Base64 encoding for signature
     }
-    // Verify the signature using the CryptoKey.
     let isVerified;
     try {
         isVerified = await crypto.subtle.verify('HMAC', key, signatureBytes, finalCombined);
     }
     catch {
-        return false; // Verification process failed
+        return false;
     }
     if (!isVerified) {
         return false;
@@ -384,7 +372,7 @@ separator, serializer, maxAgeMs // Optional expiration check in milliseconds
     if (maxAgeMs && tokenTime) {
         const currentTime = Date.now();
         if (currentTime - tokenTime > maxAgeMs) {
-            return false; // Token expired
+            return false;
         }
     }
     return true;
@@ -430,8 +418,7 @@ export async function edgeToken(userOptions) {
          */
         async verify(submitted, data = '') {
             data = isEdgeCase(data) ? '' : data;
-            return verifyToken(key, submitted, data, false, false, options.seperator, options.dataSerializer, undefined // maxAgeMs not applicable
-            );
+            return verifyToken(key, submitted, data, false, false, options.seperator, options.dataSerializer, undefined);
         },
         /**
          * Generate a token with embedded data but without timing.
@@ -449,8 +436,7 @@ export async function edgeToken(userOptions) {
             data = isEdgeCase(data) ? '' : data;
             return verifyToken(key, submitted, data, data ? true : false, // showData
             false, // timed
-            options.seperator, options.dataSerializer, undefined // maxAgeMs not applicable
-            );
+            options.seperator, options.dataSerializer, undefined);
         },
         /**
          * Generate a timed token without embedded data.

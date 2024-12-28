@@ -297,12 +297,6 @@ Verify a timed token with embedded data.
 
 This compatibility ensures that you can leverage **Edge Token** for high-performance, low-latency applications deployed at the edge, taking advantage of secure token generation and verification without sacrificing speed or scalability.
 
-### Why Edge Runtime Compatibility Matters
-
-- **Performance**: Running token operations at the edge reduces latency by processing requests closer to users.
-- **Scalability**: Edge environments handle high traffic seamlessly, ensuring your token operations remain efficient.
-- **Security**: Edge Token utilizes Web Crypto APIs supported in edge environments to provide robust security measures.
-
 ## License
 
 MIT

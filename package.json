@@ -1,0 +1,40 @@
+{
+  "name": "@nartix/edge-token",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "An edge runtime compatible token generator",
+  "private": false,
+  "scripts": {
+    "test": "npx tsx src/tests/edge-token.test.ts",
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "edge",
+    "token",
+    "runtime",
+    "generator",
+    "edge-runtime",
+    "edge-token",
+    "hmac",
+    "node",
+    "csrf",
+    "next.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nartix/edge-token.git"
+  },
+  "author": "Feroz Faiz <feroz@hotmail.ca>",
+  "license": "MIT",
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

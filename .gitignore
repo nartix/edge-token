@@ -1,5 +1,5 @@
 src
 tests
-tsconfig
+tsconfig.json
 .turbo
 node_modules

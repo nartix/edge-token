@@ -1,5 +1,12 @@
 src
-tests
 tsconfig.json
 .turbo
 node_modules
+
+# Ignore all test folders
+test/
+tests/
+
+# Ignore all files ending with .test.ts or .test.js
+*.test.ts
+*.test.js

@@ -1,6 +1,6 @@
 {
   "name": "@nartix/edge-token",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,17 @@
     "hmac",
     "node",
     "csrf",
-    "next.js"
+    "next.js",
+    "vercel",
+    "cloudflare",
+    "netlify",
+    "aws-lambda",
+    "serverless",
+    "secure-token",
+    "token-verification",
+    "high-performance",
+    "low-latency",
+    "edge-computing"
   ],
   "repository": {
     "type": "git",

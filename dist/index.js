@@ -404,6 +404,9 @@ export function isEdgeCase(data) {
 export async function edgeToken(userOptions) {
     const options = mergeExtendedOptions(userOptions);
     const key = await getHmacKey(options.secret, options.algorithm);
+    if (options.tokenByteLength <= 0) {
+        options.tokenByteLength = defaultOptions.tokenByteLength;
+    }
     return {
         options,
         /**

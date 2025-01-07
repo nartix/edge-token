@@ -55,7 +55,7 @@ Generate a basic token without additional data or timing:
 ```typescript
 const token = await tokenUtility.generate();
 console.log(token);
-// 92umqMyOJBxM74zOYMKC0nt+8OVRyZJhuXopMf5/DSc=.EanL8EFWynis1ZKJBYrIE+hEcBsTuHRHjWhnIsNYQCQ=
+// mnpyrx0myNxdmH1IenxAIhXa.ungwFmuHiNKc1CSXkp-nRZsH6Y3REaLdHE08WLy9FW8
 ```
 
 #### Token with Data
@@ -65,7 +65,7 @@ Generate a token that includes embedded data (e.g., user ID, file identifier):
 ```typescript
 const tokenWithData = await tokenUtility.generateWithData({ userId: 123, fileId: 'abc123' });
 console.log(tokenWithData);
-// eyJ1c2VySWQiOjEyMywiZmlsZUlkIjoiYWJjMTIzIn0=.cXUNvZWlcSSC4Z6qTNbO1Hw/oJPmLi1eu7yA1EGSoJQ=.zd1Hy/uLTU...
+// eyJ1c2VySWQiOjEyMywiZmlsZUlkIjoiYWJjMTIzIn0.NrJERKP-kUwI0cbeKg5f_Fsb.4LlywnVckzY0FWj9R6yyX9JB_dPl8oyAiM8VEGFBFdg
 ```
 
 #### Timed Token
@@ -75,7 +75,7 @@ Generate a token that includes a timestamp for expiration:
 ```typescript
 const timedToken = await tokenUtility.generateTimed();
 console.log(timedToken);
-// MTczNTM4NTIwNjMyMw==.qh7XRpxSaX8NpGFqfP/qsuXdUqLsI3fzoy21/FsYtRA=.5laEEEjWQrbcE6GiIa0
+// MTczNjIzMzA0NDIzNg.CLXZYl-WOCByudOdXNMZI3oD.uYghfCFKBCFSxpYIVpLkwK51ZuBbC_DhExfpzxKZWr8
 ```
 
 #### Timed Token with Data

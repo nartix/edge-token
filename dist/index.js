@@ -1,46 +1,97 @@
+// /**
+//  * Encodes a Uint8Array into a Base64 string.
+//  *
+//  * @param data - The Uint8Array to encode.
+//  * @returns The Base64-encoded string.
+//  * @throws If no suitable Base64 encoding method is available.
+//  */
+// export function encodeBase64(data: Uint8Array): string {
+//   if (typeof btoa !== 'undefined') {
+//     // Convert Uint8Array to binary string
+//     let binary = '';
+//     const len = data.length;
+//     for (let i = 0; i < len; i++) {
+//       binary += String.fromCharCode(data[i] ?? 0);
+//     }
+//     return btoa(binary);
+//   } else {
+//     throw new Error('No suitable Base64 encoding method available.');
+//   }
+// }
+// /**
+//  * Decodes a Base64 string into a Uint8Array.
+//  *
+//  * Edge Runtime Compatible Implementation:
+//  * - Utilizes the `atob` function, which is available in Edge environments.
+//  *
+//  * @param base64 - The Base64 string to decode.
+//  * @returns The decoded Uint8Array.
+//  * @throws If the Base64 string is invalid or decoding fails.
+//  */
+// export function decodeBase64(base64: string): Uint8Array {
+//   try {
+//     const binaryString = atob(base64);
+//     const len = binaryString.length;
+//     const bytes = new Uint8Array(len);
+//     for (let i = 0; i < len; i++) {
+//       bytes[i] = binaryString.charCodeAt(i);
+//     }
+//     return bytes;
+//   } catch (error) {
+//     throw new Error('Invalid Base64 string provided for decoding.');
+//   }
+// }
 /**
- * Encodes a Uint8Array into a Base64 string.
+ * Encodes a Uint8Array into a Base64URL string using edge runtime compatible methods.
  *
- * @param data - The Uint8Array to encode.
- * @returns The Base64-encoded string.
- * @throws If no suitable Base64 encoding method is available.
+ * @param {Uint8Array} data - The Uint8Array to encode.
+ * @returns {string} - The Base64URL-encoded string.
+ * @throws {Error} - If Base64 encoding is not supported.
  */
 export function encodeBase64(data) {
-    if (typeof btoa !== 'undefined') {
-        // Convert Uint8Array to binary string
-        let binary = '';
-        const len = data.length;
-        for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(data[i] ?? 0);
-        }
-        return btoa(binary);
+    if (typeof btoa !== 'function') {
+        throw new Error('Base64 encoding is not supported in this environment.');
     }
-    else {
-        throw new Error('No suitable Base64 encoding method available.');
-    }
+    // Convert Uint8Array to binary string
+    const binary = Array.from(data)
+        .map((byte) => String.fromCharCode(byte))
+        .join('');
+    // Encode binary string to Base64
+    const base64 = btoa(binary);
+    // Convert Base64 to Base64URL by replacing characters and removing padding
+    const base64url = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return base64url;
 }
 /**
- * Decodes a Base64 string into a Uint8Array.
+ * Decodes a Base64URL string into a Uint8Array using edge runtime compatible methods.
  *
- * Edge Runtime Compatible Implementation:
- * - Utilizes the `atob` function, which is available in Edge environments.
- *
- * @param base64 - The Base64 string to decode.
- * @returns The decoded Uint8Array.
- * @throws If the Base64 string is invalid or decoding fails.
+ * @param {string} base64url - The Base64URL-encoded string to decode.
+ * @returns {Uint8Array} - The decoded Uint8Array.
+ * @throws {Error} - If the Base64URL string is invalid or decoding fails.
  */
-export function decodeBase64(base64) {
+export function decodeBase64(base64url) {
+    if (typeof atob !== 'function') {
+        throw new Error('Base64 decoding is not supported in this environment.');
+    }
     try {
+        // Convert Base64URL to Base64 by replacing characters
+        let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+        // Pad with '=' to make the length a multiple of 4
+        const paddingNeeded = 4 - (base64.length % 4);
+        if (paddingNeeded !== 4) {
+            base64 += '='.repeat(paddingNeeded);
+        }
+        // Decode Base64 string to binary string
         const binaryString = atob(base64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
+        // Convert binary string to Uint8Array
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
         return bytes;
     }
     catch (error) {
-        throw new Error('Invalid Base64 string provided for decoding.');
+        throw new Error('Invalid Base64URL string provided for decoding.');
     }
 }
 export const defaultDataSerializer = (data) => {
@@ -165,11 +216,11 @@ async function signData(key, data) {
  * @param showData - Whether to include the serialized data in the token.
  * @param timed - Whether the token should include a timestamp.
  * @param tokenByteLength - The length of the random byte segment.
- * @param separator - The character used to separate token parts.
+ * @param seperator - The character used to separate token parts.
  * @param serializer - Function to serialize data into Uint8Array.
  * @returns A Promise that resolves to the generated token string.
  */
-export async function generateToken(key, data, showData, timed, tokenByteLength, separator, serializer) {
+export async function generateToken(key, data, showData, timed, tokenByteLength, seperator, serializer) {
     const parts = [];
     // Generate random bytes
     const randomBytes = generateRandomBytes(tokenByteLength);
@@ -187,17 +238,17 @@ export async function generateToken(key, data, showData, timed, tokenByteLength,
     // Append random bytes and signature to parts
     parts.push(encodeBase64(randomBytes));
     parts.push(encodeBase64(signature));
-    return parts.join(separator);
+    return parts.join(seperator);
 }
 /**
  * Splits and trims the token into its constituent parts.
  *
  * @param token - The token string to split.
- * @param separator - The separator used in the token.
+ * @param seperator - The seperator used in the token.
  * @returns An array of trimmed token parts.
  */
-function splitAndTrimToken(token, separator) {
-    return token.split(separator).map((part) => part.trim());
+function splitAndTrimToken(token, seperator) {
+    return token.split(seperator).map((part) => part.trim());
 }
 /**
  * Extracts token parts based on the presence of data and timestamp.
@@ -310,16 +361,16 @@ async function handleAndCompareData(data, dataBase64, serializer) {
  * @param data - The expected data to verify against.
  * @param showData - Whether the token includes data.
  * @param timed - Whether the token includes a timestamp.
- * @param separator - The separator used in the token.
+ * @param seperator - The seperator used in the token.
  * @param serializer - Function to serialize data into Uint8Array.
  * @param maxAgeMs - Optional maximum age in milliseconds for token validity.
  * @returns A Promise that resolves to true if the token is valid, false otherwise.
  */
 export async function verifyToken(key, submitted, data, // The 'expected' data you want to verify against
-showData, timed, separator, serializer, maxAgeMs // Optional expiration check in milliseconds
+showData, timed, seperator, serializer, maxAgeMs // Optional expiration check in milliseconds
 ) {
     // Split and trim the submitted token string into parts.
-    const parts = splitAndTrimToken(submitted, separator);
+    const parts = splitAndTrimToken(submitted, seperator);
     // Extract token parts based on showData and timed flags.
     const extractedParts = extractTokenParts(parts, showData, timed);
     if (!extractedParts)
@@ -403,81 +454,58 @@ export function isEdgeCase(data) {
  */
 export async function edgeToken(userOptions) {
     const options = mergeExtendedOptions(userOptions);
-    const key = await getHmacKey(options.secret, options.algorithm);
+    // Ensure tokenByteLength is valid
     if (options.tokenByteLength <= 0) {
         options.tokenByteLength = defaultOptions.tokenByteLength;
     }
+    const key = await getHmacKey(options.secret, options.algorithm);
+    // Helper function to sanitize data
+    const sanitizeData = (data) => (isEdgeCase(data) ? '' : data);
+    // Helper function to generate token
+    const createToken = async (data, showData, timed, tokenByteLength = options.tokenByteLength, seperator = options.seperator, dataSerializer = options.dataSerializer) => {
+        data = sanitizeData(data);
+        return generateToken(key, data, showData && Boolean(data), timed, tokenByteLength, seperator, dataSerializer);
+    };
+    // Helper function to verify token
+    const checkToken = async (submitted, data, showData, timed, seperator = options.seperator, dataSerializer = options.dataSerializer, maxAgeMs) => {
+        data = sanitizeData(data);
+        return verifyToken(key, submitted, data, showData && Boolean(data), timed, seperator, dataSerializer, maxAgeMs);
+    };
     return {
         options,
         /**
          * Generate a simple token without data and without timing.
          */
-        async generate(data = '') {
-            data = isEdgeCase(data) ? '' : data;
-            return generateToken(key, data, false, false, options.tokenByteLength, options.seperator, options.dataSerializer);
-        },
+        generate: () => createToken('', false, false),
         /**
-         * Verify a simple token without data and without timing.
+         * Verify a simple token with or without data and without timing.
          */
-        async verify(submitted, data = '') {
-            data = isEdgeCase(data) ? '' : data;
-            return verifyToken(key, submitted, data, false, false, options.seperator, options.dataSerializer, undefined);
-        },
+        verify: (submitted, data = '') => checkToken(submitted, data, false, false),
         /**
          * Generate a token with embedded data but without timing.
          */
-        async generateWithData(data) {
-            data = isEdgeCase(data) ? '' : data;
-            return generateToken(key, data, data ? true : false, // showData
-            false, // timed
-            options.tokenByteLength, options.seperator, options.dataSerializer);
-        },
+        generateWithData: (data) => createToken(data, Boolean(data), false),
         /**
          * Verify a token with embedded data but without timing.
          */
-        async verifyWithData(submitted, data) {
-            data = isEdgeCase(data) ? '' : data;
-            return verifyToken(key, submitted, data, data ? true : false, // showData
-            false, // timed
-            options.seperator, options.dataSerializer, undefined);
-        },
+        verifyWithData: (submitted, data) => checkToken(submitted, data, Boolean(data), false),
         /**
          * Generate a timed token without embedded data.
          */
-        async generateTimed(data = '') {
-            data = isEdgeCase(data) ? '' : data;
-            return generateToken(key, data, false, // showData
-            true, // timed
-            options.tokenByteLength, options.seperator, options.dataSerializer);
-        },
+        generateTimed: (data = '') => createToken(data, false, true),
         /**
          * Verify a timed token without embedded data.
          * @param maxAgeMs The maximum age in milliseconds the token is valid for.
          */
-        async verifyTimed(submitted, data = '', maxAgeMs) {
-            data = isEdgeCase(data) ? '' : data;
-            return verifyToken(key, submitted, data, false, // showData
-            true, // timed
-            options.seperator, options.dataSerializer, maxAgeMs);
-        },
+        verifyTimed: (submitted, data = '', maxAgeMs) => checkToken(submitted, data, false, true, options.seperator, options.dataSerializer, maxAgeMs),
         /**
          * Generate a timed token with embedded data.
          */
-        async generateWithDataTimed(data) {
-            data = isEdgeCase(data) ? '' : data;
-            return generateToken(key, data, data ? true : false, // showData
-            true, // timed
-            options.tokenByteLength, options.seperator, options.dataSerializer);
-        },
+        generateWithDataTimed: (data) => createToken(data, Boolean(data), true),
         /**
          * Verify a timed token with embedded data.
          * @param maxAgeMs The maximum age in milliseconds the token is valid for.
          */
-        async verifyWithDataTimed(submitted, data, maxAgeMs) {
-            data = isEdgeCase(data) ? '' : data;
-            return verifyToken(key, submitted, data, data ? true : false, // showData
-            true, // timed
-            options.seperator, options.dataSerializer, maxAgeMs);
-        },
+        verifyWithDataTimed: (submitted, data, maxAgeMs) => checkToken(submitted, data, Boolean(data), true, options.seperator, options.dataSerializer, maxAgeMs),
     };
 }
